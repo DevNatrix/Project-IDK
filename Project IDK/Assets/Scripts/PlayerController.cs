@@ -1,25 +1,64 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(CharacterController), typeof(PlayerInput))]
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private float walkSpeed = 10f;
+    [SerializeField] private float playerSpeed = 2.0f;
+    [SerializeField] private float jumpHeight = 1.0f;
+    [SerializeField] private float gravityValue = -9.81f;
 
-    void Start()
+    private CharacterController controller;
+    private PlayerInput playerInput;
+    private Vector3 playerVelocity;
+    private bool groundedPlayer;
+    private Transform cameraTransform;
+
+    private InputAction moveAction;
+    private InputAction lookAction;
+
+    public Animator animator;
+
+    private void Start()
     {
-        
+        controller = GetComponent<CharacterController>();
+        playerInput = GetComponent<PlayerInput>();
+        cameraTransform = Camera.main.transform;
+        moveAction = playerInput.actions["Move"];
+        lookAction = playerInput.actions["Look"];
     }
 
     void Update()
     {
-        Movement();
-    }
+        groundedPlayer = controller.isGrounded;
+        if (groundedPlayer && playerVelocity.y < 0)
+        {
+            playerVelocity.y = 0f;
+        }
 
-    private void Movement()
-    {
-        
+        Vector2 input = moveAction.ReadValue<Vector2>();
+        Vector3 move = new Vector3(input.x, 0, input.y);
+        move = move.x * cameraTransform.right.normalized + move.z * cameraTransform.forward.normalized;
+        move.y = 0f;
+        controller.Move(move * Time.deltaTime * playerSpeed);
+
+        if (move != Vector3.zero)
+        {
+            gameObject.transform.forward = move;
+            animator.SetBool("Walking", true);
+        }
+        else if (move == Vector3.zero)
+        {
+            animator.SetBool("Walking", false);
+        }
+
+        // Changes the height position of the player..
+        if (Input.GetButtonDown("Jump") && groundedPlayer)
+        {
+            playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
+        }
+
+        playerVelocity.y += gravityValue * Time.deltaTime;
+        controller.Move(playerVelocity * Time.deltaTime);
     }
 }
