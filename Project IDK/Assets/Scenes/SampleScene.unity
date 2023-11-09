@@ -4014,6 +4014,7 @@ MonoBehaviour:
   playerSpeed: 2
   jumpHeight: 1
   gravityValue: -9.81
+  rotationSpeed: 9
   animator: {fileID: 7838190788111381325}
 --- !u!143 &7838190788111381328
 CharacterController:

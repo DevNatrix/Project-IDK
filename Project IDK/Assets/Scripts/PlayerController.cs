@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float playerSpeed = 2.0f;
     [SerializeField] private float jumpHeight = 1.0f;
     [SerializeField] private float gravityValue = -9.81f;
+    [SerializeField] private float rotationSpeed = 0.9f;
 
     private CharacterController controller;
     private PlayerInput playerInput;
@@ -44,7 +45,8 @@ public class PlayerController : MonoBehaviour
 
         if (move != Vector3.zero)
         {
-            gameObject.transform.forward = move;
+            Vector3 targetRotation = new Vector3(move.x, move.y, move.z);
+            transform.forward = Vector3.Lerp(transform.forward, targetRotation, rotationSpeed * Time.deltaTime);
             animator.SetBool("Walking", true);
         }
         else if (move == Vector3.zero)
