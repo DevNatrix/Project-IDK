@@ -1,4 +1,6 @@
+using Cinemachine;
 using UnityEngine;
+using UnityEngine.Experimental.AI;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInput))]
@@ -8,6 +10,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpHeight = 1.0f;
     [SerializeField] private float gravityValue = -9.81f;
     [SerializeField] private float rotationSpeed = 0.9f;
+    [SerializeField] private float sensitivity = 5f;
 
     private CharacterController controller;
     private PlayerInput playerInput;
@@ -17,20 +20,27 @@ public class PlayerController : MonoBehaviour
 
     private InputAction moveAction;
     private InputAction lookAction;
+    private InputAction sprintAction;
 
     public Animator animator;
+    [SerializeField] private Camera cam;
+    public CinemachineVirtualCamera VirtualCamera;
 
     private void Start()
     {
         controller = GetComponent<CharacterController>();
         playerInput = GetComponent<PlayerInput>();
-        cameraTransform = Camera.main.transform;
+        cameraTransform = cam.transform;
         moveAction = playerInput.actions["Move"];
         lookAction = playerInput.actions["Look"];
+        sprintAction = playerInput.actions["Sprint"];
     }
 
     void Update()
     {
+        sprintAction.started += ctx => Sprint(ctx);
+        sprintAction.canceled += ctx => Sprint(ctx);
+
         groundedPlayer = controller.isGrounded;
         if (groundedPlayer && playerVelocity.y < 0)
         {
@@ -62,5 +72,20 @@ public class PlayerController : MonoBehaviour
 
         playerVelocity.y += gravityValue * Time.deltaTime;
         controller.Move(playerVelocity * Time.deltaTime);
+
+        VirtualCamera.GetCinemachineComponent<CinemachinePOV>().m_VerticalAxis.m_MaxSpeed = sensitivity;
+        VirtualCamera.GetCinemachineComponent<CinemachinePOV>().m_HorizontalAxis.m_MaxSpeed = sensitivity;
+    }
+
+    public void Sprint(InputAction.CallbackContext context)
+    {
+        if(context.started)
+        {
+            playerSpeed = 5f;
+        }
+        else if(context.canceled)
+        {
+            playerSpeed = 2f;
+        }
     }
 }
