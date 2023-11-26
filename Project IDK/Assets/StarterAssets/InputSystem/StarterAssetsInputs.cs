@@ -12,6 +12,8 @@ namespace StarterAssets
 		public Vector2 look;
 		public bool jump;
 		public bool sprint;
+		public bool aim;
+		public bool switchcameraside;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -39,9 +41,19 @@ namespace StarterAssets
 			JumpInput(value.isPressed);
 		}
 
+		public void OnSwitchCameraSide(InputValue value)
+		{
+			SwitchCameraSideInput(value.isPressed);
+		}
+
 		public void OnSprint(InputValue value)
 		{
 			SprintInput(value.isPressed);
+		}
+
+		public void OnAim(InputValue value)
+		{
+			AimInput(value.isPressed);
 		}
 #endif
 
@@ -61,9 +73,19 @@ namespace StarterAssets
 			jump = newJumpState;
 		}
 
+		public void SwitchCameraSideInput(bool newCameraSwitchState)
+		{
+			switchcameraside = newCameraSwitchState;
+		}
+
 		public void SprintInput(bool newSprintState)
 		{
 			sprint = newSprintState;
+		}
+
+		public void AimInput(bool newAimState)
+		{
+			aim = newAimState;
 		}
 
 		private void OnApplicationFocus(bool hasFocus)
